@@ -23,6 +23,14 @@ import autoTable from 'jspdf-autotable';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import MenuIcon from '@mui/icons-material/Menu';
+import Drawer from '@mui/material/Drawer';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 
 // Grading table: letter grade to grade point mapping
 const gradingTable = [
@@ -104,6 +112,17 @@ function App() {
   const [currentSemester, setCurrentSemester] = useState(semesters.length + 1);
   // Track which semester is selected for viewing/editing
   const [selectedSemesterId, setSelectedSemesterId] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const navLinks = [
+    { label: 'Home', ref: heroRef },
+    { label: 'GPA Calculator', ref: gradeEntryRef },
+    { label: 'Grade Table', ref: gradeTableRef },
+  ];
+  const handleDrawerToggle = () => setDrawerOpen(!drawerOpen);
+  const handleDrawerNav = (ref) => {
+    setDrawerOpen(false);
+    handleNavClick(ref);
+  };
 
   // Save semesters to localStorage
   useEffect(() => {
@@ -333,27 +352,50 @@ function App() {
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="inherit" elevation={1} sx={{ background: '#f0f0f0', color: '#d35400', fontFamily: 'Poppins' }}>
-        <Toolbar>
-          <IconButton edge="start" color="inherit" aria-label="logo" sx={{ mr: 2 }} onClick={() => handleNavClick(heroRef)}>
-            <img src={process.env.PUBLIC_URL + '/calculator-icon.png'} alt="Calculator Logo" style={{ height: 40 }} />
+    <Box sx={{ flexGrow: 1, width: '100%' }}>
+      {/* Responsive Navbar */}
+      <AppBar position="static" sx={{ background: '#fff', color: '#d35400', boxShadow: 2 }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: { xs: 1, sm: 2 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <img src={process.env.PUBLIC_URL + '/calculator-icon.png'} alt="Logo" style={{ height: 36, marginRight: 12 }} />
+            <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: 'Poppins', letterSpacing: 1, color: '#d35400', fontSize: { xs: '1.1rem', sm: '1.3rem' } }}>
+              GPA Calculator
+            </Typography>
+          </Box>
+          {/* Desktop Nav */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
+            {navLinks.map((item) => (
+              <Button key={item.label} color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none', fontSize: '1rem' }} onClick={() => handleNavClick(item.ref)}>
+                {item.label}
+              </Button>
+            ))}
+          </Box>
+          {/* Mobile Nav */}
+          <IconButton edge="end" color="inherit" aria-label="menu" onClick={handleDrawerToggle} sx={{ display: { xs: 'flex', md: 'none' } }}>
+            <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700, letterSpacing: 1 }}>
-            Grading Portal
-          </Typography>
-          <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins' }} onClick={() => handleNavClick(heroRef)}>Home</Button>
-          <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins' }} onClick={() => handleNavClick(gradeEntryRef)}>GPA Calculator</Button>
-          <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins' }} onClick={() => handleNavClick(gradeTableRef)}>Grade Table</Button>
         </Toolbar>
       </AppBar>
+      <Drawer anchor="right" open={drawerOpen} onClose={handleDrawerToggle} sx={{ display: { xs: 'block', md: 'none' } }}>
+        <Box sx={{ width: 220 }} role="presentation" onClick={handleDrawerToggle}>
+          <List>
+            {navLinks.map((item) => (
+              <ListItem key={item.label} disablePadding>
+                <ListItemButton onClick={() => handleDrawerNav(item.ref)}>
+                  <ListItemText primary={item.label} sx={{ fontFamily: 'Poppins', fontWeight: 500, color: '#d35400' }} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
       {/* Hero section and main content will go here */}
       <Box ref={heroRef} className="snap-section" sx={{
         width: '100%',
-        minHeight: { xs: 320, md: 420 },
+        minHeight: { xs: 200, md: 420 },
         background: `linear-gradient(90deg, rgba(107, 89, 62, 0.79) 10%, rgba(114, 101, 91, 0.23) 100%), url('https://images.unsplash.com/photo-1503676382389-4809596d5290?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat`,
-        py: { xs: 6, md: 8 },
-        px: { xs: 2, md: 0 },
+        py: { xs: 3, md: 8 },
+        px: { xs: 0, md: 0 },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -363,17 +405,17 @@ function App() {
         mb: 4,
         scrollSnapAlign: 'start',
       }}>
-        <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: '#d35400', fontFamily: 'Poppins', textAlign: 'center'}}>
+        <Typography variant="h3" sx={{ fontWeight: 700, mb: 2, color: '#d35400', fontFamily: 'Poppins', textAlign: 'center', fontSize: { xs: '1.5rem', sm: '2.2rem', md: '2.8rem' } }}>
           Welcome to the Grading Portal
         </Typography>
-        <Typography variant="h6" sx={{ mb: 4, color: '#ff9800', fontFamily: 'Poppins', textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ mb: 4, color: '#ff9800', fontFamily: 'Poppins', textAlign: 'center', fontSize: { xs: '1rem', sm: '1.2rem', md: '1.3rem' } }}>
           Track your academic performance, calculate your GPA, and stay on top of your goals.
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: 400, mx: 'auto', gap: 2 }}>
           <Button
             variant="contained"
             size="large"
-            sx={{ background: '#ff9800', color: '#fff', fontWeight: 600, fontFamily: 'Poppins', borderRadius: 3, px: 4, boxShadow: 2, '&:hover': { background: '#d35400' } }}
+            sx={{ background: '#ff9800', color: '#fff', fontWeight: 600, fontFamily: 'Poppins', borderRadius: 3, px: 4, boxShadow: 2, width: '14rem', height: '3rem', mb: { xs: 1, sm: 0 }, '&:hover': { background: '#d35400' } }}
             onClick={() => handleNavClick(gradeEntryRef)}
           >
             Calculate GPA
@@ -381,55 +423,93 @@ function App() {
           <Button
             variant="outlined"
             size="large"
-            sx={{ color: '#d35400', borderColor: '#d35400', fontWeight: 600, fontFamily: 'Poppins', borderRadius: 3, px: 4, boxShadow: 2, '&:hover': { borderColor: '#ff9800', color: '#ff9800' } }}
+            sx={{ color: '#d35400', borderColor: '#d35400', fontWeight: 600, fontFamily: 'Poppins', borderRadius: 3, px: 4, boxShadow: 2, width: '14rem', height: '3rem', '&:hover': { borderColor: '#ff9800', color: '#ff9800' } }}
             onClick={() => handleNavClick(gradeTableRef)}
           >
             View Grading Policy
           </Button>
         </Box>
       </Box>
-      {/* Main content cards */}
-      <Box sx={{
-        display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
-        gap: 4,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        px: { xs: 2, md: 6 },
-        mb: 6,
-      }}>
+      {/* Main content cards*/}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', lg: 'row' },
+          gap: { xs: 4, lg: 6 },
+          alignItems: 'stretch',
+          width: '100%',
+          maxWidth: 1400,
+          mx: 'auto',
+          mb: 8,
+        }}
+      >
         {/* Grade Entry Card */}
-        <Box ref={gradeEntryRef} sx={{ flex: 1, minWidth: 320 }}>
-          <Card sx={{ borderRadius: 4, boxShadow: 3, p: 3 }}>
-            <CardContent>
-              <Typography variant="h5" sx={{ fontWeight: 600, color: '#d35400', mb: 2, fontFamily: 'Poppins' }}>
-                Grade Entry (Semester {currentSemester})
-              </Typography>
+        <Box
+          ref={gradeEntryRef}
+          sx={{
+            flex: 1,
+            minWidth: { xs: '80%', sm: 300, md: 300, lg: 400 },
+            maxWidth: '100%',
+            width: { xs: '85%', md: '33%', lg: '33%' },
+            mx: { xs: 1, lg: 1 },
+            mb: { xs: 2, lg: 0 },
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Card
+            sx={{
+              borderRadius: 6,
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)',
+              background: 'rgba(255,255,255,0.95)',
+              border: '1px solid #ececec',
+              p: { xs: 2, md: 3 }, // reduced padding
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              justifyContent: 'stretch',
+              transition: 'box-shadow 0.2s, transform 0.2s',
+              '&:hover': {
+                boxShadow: '0 12px 40px 0 rgba(31, 38, 135, 0.18)',
+                transform: 'translateY(-2px) scale(1.01)',
+              },
+            }}
+          >
+            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: '#222', fontFamily: 'Poppins', fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' } }}>
+                  Grade Entry (Semester {currentSemester})
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
               {/* Grade entry form */}
-              <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 1, mb: 2 }}>
-                <Table>
+              <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 0, mb: 2, width: '100%', background: 'transparent' }}>
+                <Table size="small" sx={{ width: '100%' }}>
                   <TableHead>
-                    <TableRow sx={{ background: '#f0f0f0' }}>
-                      <TableCell sx={{ fontWeight: 600 }}>Course Name</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Marks</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Credit Hours</TableCell>
+                    <TableRow sx={{ background: '#f7f8fa' }}>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Course Name</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Marks</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>Credit Hours</TableCell>
                       <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {courses.map((course, idx) => (
-                      <TableRow key={idx} sx={{ background: idx % 2 === 0 ? '#f7f7f7' : '#f0f0f0' }}>
-                        <TableCell>
+                      <TableRow key={idx} sx={{ background: idx % 2 === 0 ? '#fafbfc' : '#f7f8fa' }}>
+                        <TableCell sx={{ width: '100%' }}>
                           <TextField
                             variant="outlined"
                             size="small"
                             value={course.name}
                             onChange={e => handleCourseChange(idx, 'name', e.target.value)}
                             placeholder="e.g. Calculus"
-                            sx={{ background: '#fff', borderRadius: 2 }}
+                            sx={{ background: '#fff', borderRadius: 2, width: '100%', fontSize: '1.05rem', input: { py: 1.2 } }}
+                            inputProps={{ style: { fontSize: '1.05rem', padding: '12px 10px' } }}
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ width: '100%' }}>
                           <TextField
                             variant="outlined"
                             size="small"
@@ -437,11 +517,11 @@ function App() {
                             value={course.marks}
                             onChange={e => handleCourseChange(idx, 'marks', e.target.value)}
                             placeholder="e.g. 85"
-                            sx={{ background: '#fff', borderRadius: 2, width: 110 }} // wider marks input
-                            inputProps={{ min: 0, max: 100 }}
+                            sx={{ background: '#fff', borderRadius: 2, width: '100%', fontSize: '1.05rem', input: { py: 1.2 } }}
+                            inputProps={{ min: 0, max: 100, style: { fontSize: '1.05rem', padding: '12px 10px' } }}
                           />
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ width: '100%' }}>
                           <TextField
                             variant="outlined"
                             size="small"
@@ -449,21 +529,23 @@ function App() {
                             value={course.credit}
                             onChange={e => handleCourseChange(idx, 'credit', e.target.value)}
                             placeholder="e.g. 3"
-                            sx={{ background: '#fff', borderRadius: 2, width: 60 }} // narrower credit input
-                            inputProps={{ min: 0 }}
+                            sx={{ background: '#fff', borderRadius: 2, width: '100%', fontSize: '1.05rem', input: { py: 1.2 } }}
+                            inputProps={{ min: 0, style: { fontSize: '1.05rem', padding: '12px 10px' } }}
                           />
                         </TableCell>
                         <TableCell>
-                          <IconButton color="error" onClick={() => handleRemoveCourse(idx)} disabled={courses.length === 1}>
-                            <Trash2 size={20} />
-                          </IconButton>
+                          <Tooltip title="Remove Course">
+                            <IconButton color="error" onClick={() => handleRemoveCourse(idx)} disabled={courses.length === 1}>
+                              <Trash2 size={20} />
+                            </IconButton>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row', md: 'row' }, gap: 2, width: { xs: '100%', sm: '80%', md: 'auto' }, mb: 2, justifyContent: { xs: 'center', sm: 'flex-start' }, alignItems: { xs: 'center', sm: 'flex-start' } }}>
                 <Button
                   variant="contained"
                   size="large"
@@ -472,16 +554,21 @@ function App() {
                   sx={{
                     background: 'linear-gradient(90deg, #ff9800 60%, #d35400 100%)',
                     color: '#fff',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontFamily: 'Poppins',
-                    borderRadius: 3,
-                    boxShadow: 3,
-                    px: 4,
+                    borderRadius: 99,
+                    boxShadow: 2,
+                    px: 3,
                     py: 1.5,
-                    fontSize: 18,
                     letterSpacing: 0.5,
+                    width: { xs: '90%', lg: '12rem' }, // 90% width on mobile, fixed on desktop
+                    minWidth: 120,
+                    maxWidth: 200,
+                    mb: { xs: 1, lg: 0 }, // vertical gap on mobile
+                    mx: 'auto', // horizontal gap on desktop
+                    fontSize: { xs: '1.05rem', sm: '1.15rem', md: '1.15rem' },
                     transition: 'all 0.2s',
-                    '&:hover': { background: 'linear-gradient(90deg, #d35400 60%, #ff9800 100%)', boxShadow: 6 },
+                    '&:hover': { background: 'linear-gradient(90deg, #d35400 60%, #ff9800 100%)', boxShadow: 4 },
                     '&:focus': { outline: '2px solid #ff9800' },
                   }}
                 >
@@ -494,17 +581,21 @@ function App() {
                   sx={{
                     color: '#d35400',
                     borderColor: '#d35400',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontFamily: 'Poppins',
-                    borderRadius: 3,
+                    borderRadius: 99,
                     boxShadow: 2,
-                    px: 4,
+                    px: 3,
                     py: 1.5,
-                    fontSize: 18,
                     letterSpacing: 0.5,
-                    background: '#fff',
+                    width: { xs: '90%', lg: '12rem' }, // 90% width on mobile, fixed on desktop
+                    minWidth: 120,
+                    maxWidth: 200,
+                    mb: { xs: 1, lg: 0 }, // vertical gap on mobile
+                    mx: 'auto', // horizontal gap on desktop
+                    fontSize: { xs: '1.05rem', sm: '1.15rem', md: '1.15rem' },
                     transition: 'all 0.2s',
-                    '&:hover': { borderColor: '#ff9800', color: '#ff9800', background: '#f0f0f0' },
+                    '&:hover': { borderColor: '#ff9800', color: '#ff9800', boxShadow: 4 },
                     '&:focus': { outline: '2px solid #ff9800' },
                   }}
                 >
@@ -516,18 +607,23 @@ function App() {
                   color="success"
                   onClick={handleSaveSemester}
                   sx={{
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontFamily: 'Poppins',
-                    borderRadius: 3,
-                    boxShadow: 3,
-                    px: 4,
+                    borderRadius: 99,
+                    boxShadow: 2,
+                    px: 3,
                     py: 1.5,
-                    fontSize: 18,
+                    fontSize: { xs: '1.05rem', sm: '1.15rem', md: '1.15rem' },
                     letterSpacing: 0.5,
                     background: 'linear-gradient(90deg, #43a047 60%, #388e3c 100%)',
                     color: '#fff',
+                    width: { xs: '90%', lg: '12rem' }, // 90% width on mobile, fixed on desktop
+                    minWidth: 120,
+                    maxWidth: 200,
+                    mb: { xs: 1, lg: 0 }, // vertical gap on mobile
+                    mx: 'auto', 
                     transition: 'all 0.2s',
-                    '&:hover': { background: 'linear-gradient(90deg, #388e3c 60%, #43a047 100%)', boxShadow: 6 },
+                    '&:hover': { background: 'linear-gradient(90deg, #388e3c 60%, #43a047 100%)', boxShadow: 4 },
                     '&:focus': { outline: '2px solid #43a047' },
                   }}
                 >
@@ -541,18 +637,23 @@ function App() {
                     startIcon={<EditIcon />}
                     onClick={handleUpdateSemester}
                     sx={{
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontFamily: 'Poppins',
-                      borderRadius: 3,
-                      boxShadow: 3,
-                      px: 4,
+                      borderRadius: 99,
+                      boxShadow: 2,
+                      px: 3,
                       py: 1.5,
-                      fontSize: 18,
                       letterSpacing: 0.5,
+                      width: { xs: '90%', lg: '9rem' }, // 90% width on mobile, fixed on desktop
+                      minWidth: 120,
+                      maxWidth: 200,
+                      mb: { xs: 1, lg: 0 }, // vertical gap on mobile
+                      mx: 'auto', // horizontal gap on desktop
+                      fontSize: { xs: '1.05rem', sm: '1.15rem', md: '1.15rem' },
                       background: 'linear-gradient(90deg, #ff9800 60%, #d35400 100%)',
                       color: '#fff',
                       transition: 'all 0.2s',
-                      '&:hover': { background: 'linear-gradient(90deg, #d35400 60%, #ff9800 100%)', boxShadow: 6 },
+                      '&:hover': { background: 'linear-gradient(90deg, #d35400 60%, #ff9800 100%)', boxShadow: 4 },
                       '&:focus': { outline: '2px solid #ff9800' },
                     }}
                   >
@@ -564,37 +665,70 @@ function App() {
           </Card>
         </Box>
         {/* GPA Result Card */}
-        <Box sx={{ flex: 1, minWidth: 320 }}>
-          <Card sx={{ borderRadius: 4, boxShadow: 3, p: 3 }}>
-            <CardContent>
-              <Typography variant="h5" sx={{ fontWeight: 600, color: '#d35400', mb: 2, fontFamily: 'Poppins' }}>
-                GPA Result
-              </Typography>
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: { xs: '80%', sm: 300, md: 300, lg: 400 },
+            maxWidth: '100%',
+            width: { xs: '85%', md: '33%', lg: '33%' },
+            mx: { xs: 1, lg: 1 },
+            mb: { xs: 2, lg: 0 },
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Card
+            sx={{
+              borderRadius: 6,
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)',
+              background: 'rgba(255,255,255,0.95)',
+              border: '1px solid #ececec',
+              p: { xs: 2, md: 3 },
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              justifyContent: 'stretch',
+              transition: 'box-shadow 0.2s, transform 0.2s',
+              '&:hover': {
+                boxShadow: '0 12px 40px 0 rgba(31, 38, 135, 0.18)',
+                transform: 'translateY(-2px) scale(1.01)',
+              },
+            }}
+          >
+            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: '#222', fontFamily: 'Poppins', fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' } }}>
+                  GPA Result
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
               {/* GPA result display */}
-              <Box sx={{ mt: 2, mb: 2 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff9800', fontFamily: 'Poppins' }}>
+              <Box sx={{ mt: 2, mb: 2, width: '100%' }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff9800', fontFamily: 'Poppins', wordBreak: 'break-word', fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.6rem' } }}>
                   {semesterGPA !== '' ? `Semester GPA: ${semesterGPA}` : 'Enter your courses to calculate GPA.'}
                 </Typography>
               </Box>
               {/* Semester summary table */}
               {semesters.length > 0 && (
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#d35400', fontFamily: 'Poppins', mb: 1 }}>
+                <Box sx={{ mt: 3, width: '100%' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: '#d35400', fontFamily: 'Poppins', mb: 1, fontSize: { xs: '1.05rem', sm: '1.15rem' } }}>
                     Saved Semesters
                   </Typography>
                   <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="semesters-droppable">
                       {(provided) => (
-                        <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 0 }}
+                        <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 0, width: '100%', background: 'transparent' }}
                           ref={provided.innerRef} {...provided.droppableProps}>
-                          <Table size="small">
+                          <Table size="small" sx={{ width: '100%', tableLayout: 'auto' }}>
                             <TableHead>
-                              <TableRow sx={{ background: '#f0f0f0' }}>
-                                <TableCell align="center" sx={{ fontWeight: 600 }}>Semester</TableCell>
-                                <TableCell align="center" sx={{ fontWeight: 600 }}>GPA</TableCell>
-                                <TableCell align="center" sx={{ fontWeight: 600 }}>Total Credits</TableCell>
-                                <TableCell align="center" sx={{ fontWeight: 600 }}>Total Obtained</TableCell>
-                                <TableCell align="center" sx={{ fontWeight: 600 }}>Actions</TableCell>
+                              <TableRow sx={{ background: '#f7f8fa' }}>
+                                <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Semester</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.1rem' } }}>GPA</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Total Credits</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Total Obtained</TableCell>
+                                <TableCell align="center" sx={{ fontWeight: 600, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Actions</TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
@@ -609,7 +743,7 @@ function App() {
                                         {...provided.dragHandleProps}
                                         onClick={() => handleLoadSemester(sem)}
                                         sx={{
-                                          background: sem.id === selectedSemesterId ? '#ffe0b2' : (idx % 2 === 0 ? '#f7f7f7' : '#f0f0f0'),
+                                          background: sem.id === selectedSemesterId ? '#ffe0b2' : (idx % 2 === 0 ? '#fafbfc' : '#f7f8fa'),
                                           cursor: 'pointer',
                                           transition: 'background 0.2s',
                                           '&:hover': { background: '#ffcc80' },
@@ -624,34 +758,40 @@ function App() {
                                           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
                                             {/* Container 1: Delete button */}
                                             <Box>
-                                              <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={e => { e.stopPropagation(); handleDeleteSemester(sem.id); }}
-                                              >
-                                                <DeleteIcon fontSize="small" />
-                                              </IconButton>
+                                              <Tooltip title="Delete Semester">
+                                                <IconButton
+                                                  size="small"
+                                                  color="error"
+                                                  onClick={e => { e.stopPropagation(); handleDeleteSemester(sem.id); }}
+                                                >
+                                                  <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                              </Tooltip>
                                             </Box>
                                             {/* Container 2: Up/Down arrows */}
                                             {selectedSemesterId === sem.id && (
                                               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <IconButton
-                                                  size="small"
-                                                  color="primary"
-                                                  onClick={e => { e.stopPropagation(); handleMoveSemesterUp(sem.id); }}
-                                                  disabled={idx === 0}
-                                                  sx={{ mb: 0.5 }}
-                                                >
-                                                  <ArrowUpwardIcon fontSize="small" />
-                                                </IconButton>
-                                                <IconButton
-                                                  size="small"
-                                                  color="primary"
-                                                  onClick={e => { e.stopPropagation(); handleMoveSemesterDown(sem.id); }}
-                                                  disabled={idx === semesters.length - 1}
-                                                >
-                                                  <ArrowDownwardIcon fontSize="small" />
-                                                </IconButton>
+                                                <Tooltip title="Move Up">
+                                                  <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={e => { e.stopPropagation(); handleMoveSemesterUp(sem.id); }}
+                                                    disabled={idx === 0}
+                                                    sx={{ mb: 0.5 }}
+                                                  >
+                                                    <ArrowUpwardIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Move Down">
+                                                  <IconButton
+                                                    size="small"
+                                                    color="primary"
+                                                    onClick={e => { e.stopPropagation(); handleMoveSemesterDown(sem.id); }}
+                                                    disabled={idx === semesters.length - 1}
+                                                  >
+                                                    <ArrowDownwardIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Tooltip>
                                               </Box>
                                             )}
                                           </Box>
@@ -673,105 +813,142 @@ function App() {
                       variant="contained"
                       color="primary"
                       onClick={handleDownloadPDF}
-                      sx={{ fontWeight: 600, fontFamily: 'Poppins', borderRadius: 3, boxShadow: 2, px: 4, py: 1.5, fontSize: 16, letterSpacing: 0.5, background: 'linear-gradient(90deg, #ff9800 60%, #d35400 100%)', color: '#fff', transition: 'all 0.2s', '&:hover': { background: 'linear-gradient(90deg, #d35400 60%, #ff9800 100%)', boxShadow: 4 } }}
+                      sx={{ fontWeight: 700, fontFamily: 'Poppins', borderRadius: 99, boxShadow: 2, px: 4, py: 1.5, fontSize: 18, letterSpacing: 0.5, background: 'linear-gradient(90deg, #ff9800 60%, #d35400 100%)', color: '#fff', transition: 'all 0.2s', '&:hover': { background: 'linear-gradient(90deg, #d35400 60%, #ff9800 100%)', boxShadow: 4 } }}
                     >
                       Download PDF
                     </Button>
                   </Box>
                 </Box>
+
               )}
             </CardContent>
           </Card>
         </Box>
-        {/* CGPA Update Card */}
-        <Box sx={{ flex: 1, minWidth: 320 }}>
-          <Card sx={{ borderRadius: 4, boxShadow: 3, p: 3 }}>
-            <CardContent>
-              <Typography variant="h5" sx={{ fontWeight: 600, color: '#d35400', mb: 2, fontFamily: 'Poppins' }}>
-                CGPA Update
-              </Typography>
-              {/* CGPA update form */}
-              {semesters.length > 0 ? (
-                <Box sx={{ mt: 2, mb: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff9800', fontFamily: 'Poppins' }}>
-                    Overall CGPA: {overallCgpa}
-                  </Typography>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
-                  <TextField
-                    label="Previous CGPA"
-                    variant="outlined"
-                    size="small"
-                    value={prevCgpa}
-                    onChange={e => setPrevCgpa(e.target.value)}
-                    placeholder="e.g. 3.45"
-                    sx={{ background: '#fff', borderRadius: 2 }}
-                    inputProps={{ min: 0, max: 4, step: 0.01 }}
-                  />
-                  <TextField
-                    label="Previous Total Credits"
-                    variant="outlined"
-                    size="small"
-                    value={prevCredits}
-                    onChange={e => setPrevCredits(e.target.value)}
-                    placeholder="e.g. 90"
-                    sx={{ background: '#fff', borderRadius: 2 }}
-                    inputProps={{ min: 0, step: 1 }}
-                  />
-                  <Box sx={{ mt: 2, mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff9800', fontFamily: 'Poppins' }}>
-                      {updatedCgpa !== '' ? `Updated CGPA: ${updatedCgpa}` : 'Enter previous CGPA and credits to update.'}
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
+        {/* Update CGPA Card */}
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: { xs: '80%', sm: 300, md: 300, lg: 400 },
+            maxWidth: '100%',
+            width: { xs: '85%', md: '33%', lg: '33%' },
+            mx: { xs: 1, lg: 1 },
+            mb: { xs: 2, lg: 0 },
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Card
+            sx={{
+              borderRadius: 6,
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.10)',
+              background: 'rgba(255,255,255,0.95)',
+              border: '1px solid #ececec',
+              p: { xs: 2, md: 3 },
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              justifyContent: 'stretch',
+              transition: 'box-shadow 0.2s, transform 0.2s',
+              '&:hover': {
+                boxShadow: '0 12px 40px 0 rgba(31, 38, 135, 0.18)',
+                transform: 'translateY(-2px) scale(1.01)',
+              },
+            }}
+          >
+            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: '#222', fontFamily: 'Poppins', fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' } }}>
+                  Overall CGPA
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              <Box sx={{ width: '100%' }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#ff9800', fontFamily: 'Poppins', fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' }, wordBreak: 'break-word' }}>
+                  {overallCgpa !== '' ? `Overall CGPA: ${overallCgpa}` : 'Add semesters to calculate your overall CGPA.'}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Box>
       </Box>
-      {/* Placeholder for Grade Table section */}
-      <Box ref={gradeTableRef} sx={{ maxWidth: 900, mx: 'auto', mb: 8 }}>
-        <Card sx={{ borderRadius: 4, boxShadow: 3, p: 3 }}>
+      {/* Grading Table section */}
+      <Box ref={gradeTableRef} sx={{ minWidth: { xs: '70%', sm: 300, md: 300, lg: 400 }, maxWidth: '100%', width: { xs: '90%', md: '50%', lg: '50rem' }, mx: { xs: 2, lg: 'auto' }, mb: 1 }}>
+        <Card sx={{ borderRadius: 5, boxShadow: 4, p: { xs: 0, sm: 0 }, width: '100%' }}>
           <CardContent>
-            <Typography variant="h5" sx={{ fontWeight: 600, color: '#d35400', mb: 2, fontFamily: 'Poppins' }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, color: '#d35400', mb: 2, fontFamily: 'Poppins', fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>
               Grading Table
             </Typography>
-            <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 1, mb: 2 }}>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ background: '#f0f0f0' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>% Marks</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Grade Point</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Letter Grade</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Remarks</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {gradingTable.map((row, idx) => (
-                    <TableRow key={idx} sx={{ background: idx % 2 === 0 ? '#f7f7f7' : '#f0f0f0' }}>
-                      <TableCell>{row.min === row.max ? row.min : `${row.min}–${row.max}`}</TableCell>
-                      <TableCell>{row.point.toFixed(2)}</TableCell>
-                      <TableCell>{row.grade}</TableCell>
-                      <TableCell>{gradeRemarks[row.grade] || ''}</TableCell>
+            <Box sx={{ width: '100%', overflowX: 'auto' }}>
+              <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 1, mb: 2, width: '100%' }}>
+                <Table sx={{ width: '100%', minWidth: 400 }}>
+                  <TableHead>
+                    <TableRow sx={{ background: '#f0f0f0' }}>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>% Marks</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>Grade Point</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>Letter Grade</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>Remarks</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {gradingTable.map((row, idx) => (
+                      <TableRow key={idx} sx={{ background: idx % 2 === 0 ? '#f7f7f7' : '#f0f0f0' }}>
+                        <TableCell sx={{ fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>{row.min === row.max ? row.min : `${row.min}–${row.max}`}</TableCell>
+                        <TableCell sx={{ fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>{row.point.toFixed(2)}</TableCell>
+                        <TableCell sx={{ fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>{row.grade}</TableCell>
+                        <TableCell sx={{ fontSize: { xs: '0.85rem', sm: '1rem' }, px: { xs: 1, sm: 2 } }}>{gradeRemarks[row.grade] || ''}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
           </CardContent>
         </Card>
       </Box>
       {/* Placeholder for Contact/footer section */}
-      <Box ref={contactRef} className="snap-section" sx={{ background: '#f0f0f0', py: 4, mt: 8 }}>
-        <Box sx={{ maxWidth: 900, mx: 'auto', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: 2, px: 2 }}>
-          <Typography variant="body2" sx={{ color: '#d35400', fontFamily: 'Poppins', fontWeight: 500 }}>
+      <Box ref={contactRef} className="snap-section" sx={{ background: '#f0f0f0', py: 4, mt: 8, width: '100%' }}>
+        <Box
+          sx={{
+            minWidth: { xs: '80%', sm: 300, md: 300, lg: 400 },
+            maxWidth: '100%',
+            width: { xs: '90%', md: '50%', lg: '50rem' },
+            mx: 'auto',
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between',
+            gap: { xs: 1.5, md: 2 },
+            px: 2,
+            textAlign: { xs: 'center', md: 'left' },
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#d35400',
+              fontFamily: 'Poppins',
+              fontWeight: 500,
+              mb: { xs: 1, md: 0 },
+              width: { xs: '100%', md: 'auto' },
+              textAlign: { xs: 'center', md: 'left' },
+            }}
+          >
             © {new Date().getFullYear()} Mona DevDizyn | All rights reserved.
           </Typography>
-          <Box sx={{ display: 'flex', gap: 3 }}>
-            <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none' }} onClick={() => handleNavClick(heroRef)}>Home</Button>
-            <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none' }} onClick={() => handleNavClick(gradeEntryRef)}>GPA Calculator</Button>
-            <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none' }} onClick={() => handleNavClick(gradeTableRef)}>Grade Table</Button>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 1, sm: 3 },
+              alignItems: 'center',
+              width: { xs: '100%', sm: 'auto' },
+            }}
+          >
+            <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none', width: { xs: '100%', sm: 'auto' }, fontSize: { xs: '0.95rem', sm: '1rem' } }} onClick={() => handleNavClick(heroRef)}>Home</Button>
+            <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none', width: { xs: '100%', sm: 'auto' }, fontSize: { xs: '0.95rem', sm: '1rem' } }} onClick={() => handleNavClick(gradeEntryRef)}>GPA Calculator</Button>
+            <Button color="inherit" sx={{ fontWeight: 500, fontFamily: 'Poppins', textTransform: 'none', width: { xs: '100%', sm: 'auto' }, fontSize: { xs: '0.95rem', sm: '1rem' } }} onClick={() => handleNavClick(gradeTableRef)}>Grade Table</Button>
           </Box>
         </Box>
       </Box>
