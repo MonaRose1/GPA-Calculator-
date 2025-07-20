@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/GPA-Calculator-/static/css/main.85f265bf.css",
-    "main.js": "/GPA-Calculator-/static/js/main.e74c4267.js",
+    "main.js": "/GPA-Calculator-/static/js/main.aae2d391.js",
     "static/js/781.78e152a6.chunk.js": "/GPA-Calculator-/static/js/781.78e152a6.chunk.js",
     "static/js/549.7f7b7c2e.chunk.js": "/GPA-Calculator-/static/js/549.7f7b7c2e.chunk.js",
     "static/js/802.9b7802d7.chunk.js": "/GPA-Calculator-/static/js/802.9b7802d7.chunk.js",
     "static/js/453.172a6e4b.chunk.js": "/GPA-Calculator-/static/js/453.172a6e4b.chunk.js",
     "index.html": "/GPA-Calculator-/index.html",
     "main.85f265bf.css.map": "/GPA-Calculator-/static/css/main.85f265bf.css.map",
-    "main.e74c4267.js.map": "/GPA-Calculator-/static/js/main.e74c4267.js.map",
+    "main.aae2d391.js.map": "/GPA-Calculator-/static/js/main.aae2d391.js.map",
     "781.78e152a6.chunk.js.map": "/GPA-Calculator-/static/js/781.78e152a6.chunk.js.map",
     "549.7f7b7c2e.chunk.js.map": "/GPA-Calculator-/static/js/549.7f7b7c2e.chunk.js.map",
     "802.9b7802d7.chunk.js.map": "/GPA-Calculator-/static/js/802.9b7802d7.chunk.js.map",
@@ -16,6 +16,6 @@
   },
   "entrypoints": [
     "static/css/main.85f265bf.css",
-    "static/js/main.e74c4267.js"
+    "static/js/main.aae2d391.js"
   ]
 }
